@@ -25,5 +25,9 @@ Route::middleware('auth.custom')->group(function () {
     Route::delete('/notes/{id}', [NoteController::class, 'destroy'])->name('notes.destroy');
 });
 
+Route::get('/prueba', function () {
+    return view('test');
+});
+
 // Redirige al root
 Route::get('/', fn () => redirect()->route('login'));

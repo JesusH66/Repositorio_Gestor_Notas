@@ -26,17 +26,17 @@
         @if (session('error'))
             <div class="error">{{ session('error') }}</div>
         @endif
-        @if (auth()->check())
+        @if (Session::has('user_id') && !Request::is('inicio', 'registro'))
             <div class="nav">
-                <a href="{{ route('dashboard') }}">Dashboard</a>
+                <a href="{{ route('dashboard') }}">Panel</a>
                 <a href="{{ route('profile') }}">Perfil</a>
                 <a href="{{ route('notes.index') }}">Notas</a>
-                <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit">Logout</button>
-                </form>
-            </div>
-        @endif
+            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit">Cerrar Sesión</button>
+        </form>
+    </div>
+@endif
         @yield('content')
     </div>
 </body>

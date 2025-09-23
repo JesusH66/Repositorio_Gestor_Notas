@@ -11,7 +11,7 @@
             <label>Contraseña</label>
             <input type="password" name="password" required>
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Ingresar</button>
     </form>
     <p>¿No tienes una cuenta? <a href="{{ route('register') }}">Registrarse</a></p>
 @endsection

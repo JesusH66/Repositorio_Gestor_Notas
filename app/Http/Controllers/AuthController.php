@@ -14,9 +14,8 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    //Realizo un registro con Query Builder donde debe introducir: nombre, email y contraseña
-    public function register(Request $request)
-    {
+    // Realizo un registro con Query Builder donde debe introducir: nombre, email y contraseña
+    public function register(Request $request){
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -31,18 +30,16 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
+        return redirect()->route('login')->with('success', 'Se ha completado el registro de manera éxitosa, Inicia sesión!.');
     }
 
-    //Muestra el formulario de Login
-    public function showLoginForm()
-    {
+    // Muestra el formulario de Login
+    public function showLoginForm(){
         return view('auth.login');
     }
 
-    //Validamos mediante Query Builder y el login que el usuario posee una cuenta
-    public function login(Request $request)
-    {
+    // Validamos mediante Query Builder y el login que el usuario posee una cuenta
+    public function login(Request $request){
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -56,20 +53,44 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return back()->with('error', 'Invalid credentials.');
+        return back()->with('error', 'Datos incorrectos.');
     }
 
-    public function dashboard()
-    {
+
+    // Muestro el dashboard principal 
+    public function dashboard(){
         $user = DB::table('users')->where('id', Session::get('user_id'))->first();
         return view('dashboard', compact('user'));
     }
 
-    public function profile()
-    {
+    public function profile(){
         $user = DB::table('users')->where('id', Session::get('user_id'))->first();
         return view('profile', compact('user'));
     }
 
-    
+    // Actualizo la contraseña mediante Query Builder pasando como parámetros la contraseña actual con la nueva
+    public function updatePassword(Request $request){
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = DB::table('users')->where('id', Session::get('user_id'))->first();
+
+        if(!Hash::check($request->current_password, $user->password)){
+            return back()->with('error', 'La contraseña actual es incorrecta.');
+        }
+
+        DB::table('users')
+            ->where('id', Session::get('user_id'))
+            ->update(['password' => Hash::make($request->new_password)]);
+        return back()->with('success','Se ha actualizado la contraseña de manera exitosa.');    
+    }
+
+    // Funcion para poder cerrar sesión del sistema de notas
+    public function logout(){
+        Session::flush();
+        return redirect()->route('login')->with('success','Ha cerrado sesión.');
+    }
+
 }

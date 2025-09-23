@@ -1,9 +1,9 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Profile</h2>
-    <p>Name: {{ $user->name }}</p>
+    <h2>Perfil</h2>
+    <p>Nombre: {{ $user->name }}</p>
     <p>Email: {{ $user->email }}</p>
-    <h3>Update Password</h3>
+    <h3>Actualizar contraseña</h3>
     <form action="{{ route('profile.update-password') }}" method="POST">
         @csrf
         <div>
