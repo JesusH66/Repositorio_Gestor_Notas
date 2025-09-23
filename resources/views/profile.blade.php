@@ -15,7 +15,7 @@
             <input type="password" name="new_password" required>
         </div>
         <div>
-            <label>Confirmar nueva contraseña</label>
+            <label>Confirmar ueva contraseña</label>
             <input type="password" name="new_password_confirmation" required>
         </div>
         <button type="submit">Actualizar Contraseña</button>

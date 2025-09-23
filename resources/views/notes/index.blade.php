@@ -13,7 +13,7 @@
                 <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" onclick="return confirm('Are you sure?')">Eliminar nota</button>
+                    <button type="submit" onclick="return confirm('¿Estás seguro de eliminar la nota?')">Eliminar nota</button>
                 </form>
             </div>
         @endforeach

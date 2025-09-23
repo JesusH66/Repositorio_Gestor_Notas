@@ -14,6 +14,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+    //Realizo un registro con Query Builder donde debe introducir: nombre, email y contraseña
     public function register(Request $request)
     {
         $request->validate([
@@ -33,11 +34,13 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Registration successful! Please login.');
     }
 
+    //Muestra el formulario de Login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    //Validamos mediante Query Builder y el login que el usuario posee una cuenta
     public function login(Request $request)
     {
         $request->validate([
@@ -56,12 +59,6 @@ class AuthController extends Controller
         return back()->with('error', 'Invalid credentials.');
     }
 
-    public function logout()
-    {
-        Session::flush();
-        return redirect()->route('login')->with('success', 'Logged out successfully.');
-    }
-
     public function dashboard()
     {
         $user = DB::table('users')->where('id', Session::get('user_id'))->first();
@@ -74,23 +71,5 @@ class AuthController extends Controller
         return view('profile', compact('user'));
     }
 
-    public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = DB::table('users')->where('id', Session::get('user_id'))->first();
-
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()->with('error', 'Current password is incorrect.');
-        }
-
-        DB::table('users')
-            ->where('id', Session::get('user_id'))
-            ->update(['password' => Hash::make($request->new_password)]);
-
-        return back()->with('success', 'Password updated successfully.');
-    }
+    
 }
