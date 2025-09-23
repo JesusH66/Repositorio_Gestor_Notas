@@ -7,17 +7,17 @@
     <form action="{{ route('profile.update-password') }}" method="POST">
         @csrf
         <div>
-            <label>Current Password</label>
+            <label>Contraseña anterior</label>
             <input type="password" name="current_password" required>
         </div>
         <div>
-            <label>New Password</label>
+            <label>Nueva contraseña</label>
             <input type="password" name="new_password" required>
         </div>
         <div>
-            <label>Confirm New Password</label>
+            <label>Confirmar nueva contraseña</label>
             <input type="password" name="new_password_confirmation" required>
         </div>
-        <button type="submit">Update Password</button>
+        <button type="submit">Actualizar Contraseña</button>
     </form>
 @endsection

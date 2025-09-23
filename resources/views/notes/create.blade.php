@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Create Note</h2>
+    <h2>Crear nota</h2>
     <form action="{{ route('notes.store') }}" method="POST">
         @csrf
         <div>

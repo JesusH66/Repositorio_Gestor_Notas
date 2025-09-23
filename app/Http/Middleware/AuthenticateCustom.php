@@ -12,7 +12,7 @@ class AuthenticateCustom
     public function handle(Request $request, Closure $next): Response
     {
         if (!Session::has('user_id')) {
-            return redirect('/login')->with('error', 'Please login to access this page.');
+            return redirect('/login')->with('error', 'Por favor, crea una cuenta para acceder.');
         }
         return $next($request);
     }
