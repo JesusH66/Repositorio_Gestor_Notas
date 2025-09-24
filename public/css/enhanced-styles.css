@@ -244,7 +244,6 @@ button:hover {
     background: #2980b9;
 }
 
-/* Media queries para responsividad en perfil */
 @media (max-width: 768px) {
     .profile-info, .profile-form {
         padding: 15px;
@@ -307,5 +306,87 @@ button:hover {
     .dashboard-welcome a {
         width: 100%;
         box-sizing: border-box;
+    }
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px; 
+    background: #f9fbfd;
+    transition: border-color 0.3s ease;
+    height: 35px; 
+    box-sizing: border-box; 
+}
+
+textarea {
+    height: 80px; 
+    resize: vertical; 
+}
+
+input:focus, textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.profile-form input {
+    height: 35px;
+}
+
+.profile-form textarea {
+    height: 80px;
+}
+
+@media (max-width: 768px) {
+    input, textarea {
+        padding: 6px 8px; 
+        font-size: 13px;
+        height: 30px;
+    }
+    textarea {
+        height: 70px;
+    }
+    .profile-form input {
+        height: 30px;
+    }
+    .profile-form textarea {
+        height: 70px;
+    }
+}
+
+.note-stats {
+    background: #e6f0fa;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.note-stats p {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.stat-counter {
+    font-weight: 600;
+    color: #3498db;
+    margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+    .note-stats {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+    .note-stats p {
+        margin: 5px 0;
     }
 }

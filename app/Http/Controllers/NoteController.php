@@ -101,8 +101,21 @@ class NoteController extends Controller
         // Elimino nota usando delete() para borrar por id
         DB::table('notes')->where('id', $id)->delete();
 
-        //Redirijo con un mensaje de éxito
+        // Redirijo con un mensaje de éxito
         return redirect()->route('notes.index')->with('success','Nota eliminada exitosamente');
     }
 
+    public function listar(){
+        $userId = Session::get('user_id');
+        $notes = DB::table('notes')->where('user_id', $userId)->get();
+
+        $totalNotes = $notes->count();
+
+        $today = now()->toDateString();
+        $notesToday = $notes->where('created_at', 'like', "$today%")->count();
+
+        $editedNotes = $notes->where('updated_at', '!=', DB::raw('created_at'))->count();
+
+        return view('notes.index', compact('notes', 'totalNotes', 'notesToday', 'editedNotes'));
+    }
 }

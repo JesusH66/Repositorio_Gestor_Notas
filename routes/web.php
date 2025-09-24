@@ -18,15 +18,12 @@ Route::middleware('auth.custom')->group(function () {
     Route::post('/profile/update-password', [AuthController::class, 'updatePassword'])->name('profile.update-password');
 
     Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
+    Route::get('/notes', [NoteController::class, 'listar'])->name('notes.index');
     Route::get('/notes/create', [NoteController::class, 'create'])->name('notes.create');
     Route::post('/notes', [NoteController::class, 'store'])->name('notes.store');
     Route::get('/notes/{id}/edit', [NoteController::class, 'edit'])->name('notes.edit');
     Route::put('/notes/{id}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{id}', [NoteController::class, 'destroy'])->name('notes.destroy');
-});
-
-Route::get('/prueba', function () {
-    return view('test');
 });
 
 // Redirige al root

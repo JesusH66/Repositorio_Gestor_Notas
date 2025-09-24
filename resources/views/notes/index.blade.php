@@ -3,6 +3,12 @@
     <h2>Mis Notas</h2>
     <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a>
 
+        <div class="note-stats">
+            <p>Total de notas: <span class="stat-counter">{{ $totalNotes }}</span></p>
+            <p>Notas de hoy: <span class="stat-counter">{{ $notesToday }}</span></p>
+            <p>Notas editadas: <span class="stat-counter">{{ $editedNotes }}</span></p>
+        </div>
+
     @if (count($notes) > 0)
         @foreach ($notes as $note)
             <div class="note-item">
