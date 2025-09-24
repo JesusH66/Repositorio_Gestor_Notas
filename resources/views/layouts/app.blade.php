@@ -4,19 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Notas</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 5px; }
-        .nav { margin-bottom: 20px; }
-        .nav a { margin-right: 10px; text-decoration: none; color: #333; }
-        .error { color: red; }
-        .success { color: green; }
-        form { margin: 20px 0; }
-        input, textarea { width: 100%; padding: 8px; margin: 5px 0; }
-        button { padding: 10px 20px; background: #333; color: white; border: none; cursor: pointer; }
-        button:hover { background: #555; }
-        .note { border-bottom: 1px solid #ddd; padding: 10px 0; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/enhanced-styles.css') }}">
 </head>
 <body>
     <div class="container">

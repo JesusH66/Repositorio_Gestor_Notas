@@ -87,7 +87,7 @@ class AuthController extends Controller
         return back()->with('success','Se ha actualizado la contraseña de manera exitosa.');    
     }
 
-    // Funcion para poder cerrar sesión del sistema de notas
+    // Función para poder cerrar sesión del sistema de notas
     public function logout(){
         Session::flush();
         return redirect()->route('login')->with('success','Ha cerrado sesión.');

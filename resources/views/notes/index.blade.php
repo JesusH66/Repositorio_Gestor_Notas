@@ -1,21 +1,28 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Mis notas</h2>
-    <a href="{{ route('notes.create') }}">Crear nuevas notas</a>
-    @if ($notes->isEmpty())
-        <p>No se han creado notas.</p>
-    @else
+    <h2>Mis Notas</h2>
+    <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a>
+
+    @if (count($notes) > 0)
         @foreach ($notes as $note)
-            <div class="note">
-                <h3>{{ $note->title }}</h3>
-                <p>{{ $note->content }}</p>
-                <a href="{{ route('notes.edit', $note->id) }}">Editar notas</a>
-                <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" onclick="return confirm('¿Estás seguro de eliminar la nota?')">Eliminar nota</button>
-                </form>
+            <div class="note-item">
+                <div class="note-content">
+                    <p>{{ $note->title }}</p>
+                    <small>{{ $note->content }}</small>
+                </div>
+                <div class="actions">
+                    <a href="{{ route('notes.edit', $note->id) }}">
+                        <button>✏️</button>
+                    </a>
+                    <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button>🗑️</button>
+                    </form>
+                </div>
             </div>
         @endforeach
+    @else
+        <p>No hay notas disponibles.</p>
     @endif
 @endsection
