@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Crear cuenta</h2>
+    <center><h2>Crear cuenta</h2>
+    <h3>Crea una cuenta para acceder y gestionar cada una de tus notas personales.</h3></center>
     <form action="{{ route('register') }}" method="POST">
         @csrf
         <div>

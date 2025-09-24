@@ -390,3 +390,27 @@ input:focus, textarea:focus {
         margin: 5px 0;
     }
 }
+
+.close-button {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #e74c3c; 
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.3s ease;
+}
+
+.close-button:hover {
+    background: #c0392b; 
+}
+
+
+@media (max-width: 768px) {
+    .close-button {
+        padding: 4px 8px;
+        font-size: 16px;
+    }
+}

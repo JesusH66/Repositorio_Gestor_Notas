@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
     <div class="profile-info">
-        <h2>Perfil</h2>
+        <center><h2>PERFIL</h2></center>
         <p>Nombre: {{ $user->name }}</p>
         <p>Email: {{ $user->email }}</p>
     </div>

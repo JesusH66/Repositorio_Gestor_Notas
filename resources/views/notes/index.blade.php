@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Mis Notas</h2>
-    <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a>
+    <center><h2>MIS NOTAS</h2>
+    <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a></center>
 
         <div class="note-stats">
             <p>Total de notas: <span class="stat-counter">{{ $totalNotes }}</span></p>

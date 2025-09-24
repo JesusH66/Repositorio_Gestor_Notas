@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Crear nota</h2>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <a href="{{ route('notes.index') }}" class="close-button">X</a>
+    </div>
+    <center><h2>Crear nota</h2></center>
     <form action="{{ route('notes.store') }}" method="POST">
         @csrf
         <div>

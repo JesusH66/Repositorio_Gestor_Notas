@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Inicio de sesión</h2>
+    <center><h2>Inicio de sesión</h2>
+    <h3>Accede con tu cuenta para gestionar cada una de tus notas personales.</h3></center>
     <form action="{{ route('login') }}" method="POST">
         @csrf
         <div>

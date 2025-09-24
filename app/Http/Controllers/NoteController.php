@@ -31,6 +31,8 @@ class NoteController extends Controller
             'content'=>'required|string',
         ]);
 
+        $now = now();
+
         // Inserto nueva nota con insert() con user_id, título, contenido y fechas
         DB::table('notes')->insert([
             'user_id'=>Session::get('user_id'),
@@ -105,16 +107,23 @@ class NoteController extends Controller
         return redirect()->route('notes.index')->with('success','Nota eliminada exitosamente');
     }
 
-    public function listar(){
+    public function list(){
         $userId = Session::get('user_id');
-        $notes = DB::table('notes')->where('user_id', $userId)->get();
 
-        $totalNotes = $notes->count();
+        // Contamos las notas totales que se han hecho
+        $totalNotes = DB::table('notes')->where('user_id', $userId)->count();
 
+        // Contamos notas creadas hoy 
         $today = now()->toDateString();
-        $notesToday = $notes->where('created_at', 'like', "$today%")->count();
+        $notesToday = DB::table('notes')->where('user_id', $userId)->whereDate('created_at', '=', $today)->count();
 
-        $editedNotes = $notes->where('updated_at', '!=', DB::raw('created_at'))->count();
+        // Contamos las notas totales
+        $editedNotes = DB::table('notes')
+            ->where('user_id', $userId)
+            ->whereRaw('updated_at > created_at')
+            ->count();
+
+        $notes = DB::table('notes')->where('user_id', $userId)->get();
 
         return view('notes.index', compact('notes', 'totalNotes', 'notesToday', 'editedNotes'));
     }

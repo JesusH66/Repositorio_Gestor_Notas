@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-    <h2>Editar nota</h2>
+    <center><h2>EDITAR NOTA</h2></center>
     <form action="{{ route('notes.update', $note->id) }}" method="POST">
         @csrf
         @method('PUT')
