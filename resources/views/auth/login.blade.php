@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('content')
-    <center><h2>Inicio de sesión</h2>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<center><span class="material-symbols-outlined">account_box</span>
+    <h2>Inicio de sesión</h2>
     <h3>Accede con tu cuenta para gestionar cada una de tus notas personales.</h3></center>
     <form action="{{ route('login') }}" method="POST">
         @csrf

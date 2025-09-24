@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('content')
-    <center><h2>MIS NOTAS</h2>
+    <center><span class="material-symbols-outlined">add_notes</span>
+    <h2>MIS NOTAS</h2>
     <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a></center>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
         <div class="note-stats">
             <p>Total de notas: <span class="stat-counter">{{ $totalNotes }}</span></p>
@@ -18,12 +20,12 @@
                 </div>
                 <div class="actions">
                     <a href="{{ route('notes.edit', $note->id) }}">
-                        <button>✏️</button>
+                    <span class="material-symbols-outlined">edit</span>
                     </a>
                     <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button>🗑️</button>
+                        <span class="material-symbols-outlined">delete</span>
                     </form>
                 </div>
             </div>

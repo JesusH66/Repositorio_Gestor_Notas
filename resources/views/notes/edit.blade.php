@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('content')
-    <center><h2>EDITAR NOTA</h2></center>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <center><span class="material-symbols-outlined">edit_square</span>
+    <h2>EDITAR NOTA</h2></center>
     <div style="text-align: right; margin-bottom: 10px;">
         <a href="{{ route('notes.index') }}" class="close-button">X</a>
     </div>

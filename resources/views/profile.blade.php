@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('content')
     <div class="profile-info">
-        <center><h2>PERFIL</h2></center>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <center><span class="material-symbols-outlined">account_circle</span>
+        <h2>PERFIL</h2></center>
         <p>Nombre: {{ $user->name }}</p>
         <p>Email: {{ $user->email }}</p>
     </div>

@@ -69,11 +69,6 @@ class NoteController extends Controller
             ->where('user_id', Session::get('user_id'))
             ->first();
 
-        // Si no existe, redirijo con error
-        if(!$note){
-            return redirect()->route('notes.index')->with('error', 'Nota no encontrada.');
-        }
-
         // Actualizo nota con Query Builder: uso update() para modificar solamente el título y contenido
         DB::table('notes')
             ->where('id', $id)

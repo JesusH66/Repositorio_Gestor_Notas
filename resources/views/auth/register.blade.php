@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('content')
-    <center><h2>Crear cuenta</h2>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<center><span class="material-symbols-outlined">person_add</span>
+    <h2>Crear cuenta</h2>
     <h3>Crea una cuenta para acceder y gestionar cada una de tus notas personales.</h3></center>
     <form action="{{ route('register') }}" method="POST">
         @csrf
