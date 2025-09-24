@@ -23,7 +23,6 @@ class NoteController extends Controller
         return view('notes.create');
     }
 
-
     public function store(Request $request){
         // Valido lso datos de entrada del formulario
         $request->validate([
