@@ -31,10 +31,12 @@ class NoteController extends Controller
         return view('notes.create');
     }
 
+    // Almaceno una instancia de un factory del tipo de nota que se trate
     protected $regularNoteFactory;
     protected $importantNoteFactory;
     protected $commonNoteFactory;
 
+    // Constructor de Note_Controller
     public function __construct(
         RegularNoteFactory $regularNoteFactory,
         ImportantNoteFactory $importantNoteFactory,
@@ -44,7 +46,8 @@ class NoteController extends Controller
         $this->importantNoteFactory = $importantNoteFactory;
         $this->commonNoteFactory = $commonNoteFactory;
     }
-
+     
+    // Determino que factory utilizar en base a los datos enviados 
     protected function getNoteFactory(Request $request): NoteFactoryInterface
     {
         if ($request->has('important') && $request->important) {
