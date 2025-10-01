@@ -12,7 +12,7 @@ body {
 .container {
     width: 100%;
     max-width: 1000px;
-    background: #ffffff;
+    background: white;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -23,7 +23,7 @@ body {
 }
 
 header {
-    background: #e6f0fa;
+    background: white;
     padding: 15px 20px;
     border-radius: 10px;
     margin-bottom: 10px;
@@ -44,8 +44,12 @@ header {
     border: 2px solid orange;
 }
 
+.normal-note {
+    border: 2px solid gray;
+}
+
 .note-content {
-    background: #ffffff;
+    background: white;
     padding: 10px 12px;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -164,14 +168,12 @@ button:hover {
     gap: 10px;
 }
 
-/* Actions inside each note aligned right */
 .note-content .actions {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
 }
 
-/* Improve readability of note text */
 .note-content p {
     margin: 0;
     font-size: 16px;
@@ -184,7 +186,6 @@ button:hover {
     line-height: 1.5;
 }
 
-/* Smaller, compact action buttons inside notes */
 .note-content .actions button {
     padding: 6px 10px;
     font-size: 13px;

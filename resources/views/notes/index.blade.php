@@ -26,7 +26,7 @@
                     $noteBorderClass = 'reminder-note';
                 } else {
                     $noteType = 'normal';
-                    $noteBorderClass = '';
+                    $noteBorderClass = 'normal-note';
                 }
             @endphp
                 <div class="card shadow-sm mb-3 {{ $noteBorderClass }} {{ $note->important ? 'border border-2 border-danger' : ($note->date ? 'border border-2 border-warning' : '') }}">
@@ -41,8 +41,16 @@
                                         <span class="material-symbols-outlined" style="color: orange;">nest_clock_farsight_analog</span>
                                     @endif
                                 </h5>
+                                @if($note->important)
+                                    <small class="text-muted">NOTA IMPORTANTE.</small>
+                                @endif
+                
                                 @if($note->date)
-                                    <small class="text-muted">{{ date('d/m/Y H:i', strtotime($note->date)) }}</small>
+                                    <small class="text-muted">{{ date('d/m/Y', strtotime($note->date)) }}</small> <!-- Si queremos colocar también la hora solo colocamos H:i pero de momento solo quiero la fecha-->
+                                @endif
+
+                                @if($noteType=='normal')
+                                    <small class="text-muted">Nota normal.</small>
                                 @endif
                             </div>
                             <div class="d-flex align-items-center gap-2">

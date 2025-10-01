@@ -26,7 +26,7 @@
         </div>
         <div id="date-field" @if($note->important) style="display: none;" @else style="display: block;" @endif>
             <label>Fecha de recordatorio</label>
-            <input type="datetime-local" name="date" value="{{ $note->date ? date('Y-m-d\TH:i', strtotime($note->date)) : '' }}">
+            <input type="date" name="date" value="{{ $note->date ? date('Y-m-d\TH:i', strtotime($note->date)) : '' }}">
         </div>
         <button type="submit">Actualizar nota</button>
     </form>

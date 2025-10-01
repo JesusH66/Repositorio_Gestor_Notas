@@ -39,8 +39,8 @@ class NoteController extends Controller
 
         // Determino si es importante
         $isImportant = $request->has('important') && $request->important;
-        
-        // Determino la fecha de recordatorio (solo si no es importante)
+
+        // Determino la fecha de recordatorio
         $reminderDate = null;
         if (!$isImportant && $request->filled('date')) {
             $reminderDate = Carbon::parse($request->date);
@@ -55,7 +55,8 @@ class NoteController extends Controller
             'created_at'=>now(),
             'updated_at'=>now(),
         ]);
-
+        
+        // Envío de correo electrónicopara prueba
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
 
         //Redirijo con un mensaje de éxito si es que se hizo la nota sin ningún problema

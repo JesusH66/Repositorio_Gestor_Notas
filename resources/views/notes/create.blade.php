@@ -25,7 +25,7 @@
         </div>
         <div id="date-field" style="display: none;">
             <label>Fecha de recordatorio de la nota</label>
-            <input type="datetime-local" name="date">
+            <input type="date" name="date">
         </div>
         <button type="submit">Crear nota</button>
     </form>
