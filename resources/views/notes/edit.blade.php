@@ -51,7 +51,7 @@
                 <div class="col-md-6">
                     <div id="date-field">
                         <label for="date" class="form-label fw-bold">Fecha de recordatorio</label>
-                        <input type="datetime-local" name="date" id="date" class="form-control" value="{{ $note->date ? date('Y-m-d\TH:i', strtotime($note->date)) : '' }}">
+                        <input type="date" name="date" id="date" class="form-control" value="{{ $note->date ? date('Y-m-d\TH:i', strtotime($note->date)) : '' }}">
                         <small class="form-text d-block text-muted">Establece la fecha de recordatorio.</small>
                     </div>
                 </div>

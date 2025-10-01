@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
 use Carbon\Carbon;
-use App\Factories\NoteFactory;
+use App\Factories\ImportantNoteFactory;
+use App\Factories\RegularNoteFactory;
+use App\Factories\NoteFactoryInterface;
+use App\Factories\CommonNoteFactory;
 
 class NoteController extends Controller
 {
@@ -28,24 +31,45 @@ class NoteController extends Controller
         return view('notes.create');
     }
 
-    protected $noteFactory;
+    protected $regularNoteFactory;
+    protected $importantNoteFactory;
+    protected $commonNoteFactory;
 
-    public function __construct(NoteFactory $noteFactory)
+    public function __construct(
+        RegularNoteFactory $regularNoteFactory,
+        ImportantNoteFactory $importantNoteFactory,
+        CommonNoteFactory $commonNoteFactory
+    ) {
+        $this->regularNoteFactory = $regularNoteFactory;
+        $this->importantNoteFactory = $importantNoteFactory;
+        $this->commonNoteFactory = $commonNoteFactory;
+    }
+
+    protected function getNoteFactory(Request $request): NoteFactoryInterface
     {
-        $this->noteFactory = $noteFactory;
+        if ($request->has('important') && $request->important) {
+            return $this->importantNoteFactory;
+        } elseif ($request->filled('date')) {
+            return $this->regularNoteFactory;
+        }
+        return $this->commonNoteFactory;
     }
 
     public function store(Request $request)
     {
-        // Creo los datos de la nota usando el Factory
-        $noteData = $this->noteFactory->create($request);
+        // Selecciono el factory para el tipo de nota que se trata
+        $noteFactory = $this->getNoteFactory($request);
+
+        // Creo los datos para la elaboración de la nota usanso el factory
+        $noteData = $noteFactory->create($request);
 
         // Inserto la nota en la base de datos
         DB::table('notes')->insert($noteData);
 
-        // Enviar correo electrónico (curso)
+        // Envío un correo (curso)
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
 
+        // Redirijo con mensaje de éxito
         return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
     }
 
@@ -63,30 +87,25 @@ class NoteController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Valido si la nota existe y le pertenece al usuario activo
-        $note = DB::table('notes')
-            ->where('id', $id)
-            ->where('user_id', Session::get('user_id'))
-            ->first();
+        // Selecciono el factory adecuado
+        $noteFactory = $this->getNoteFactory($request);
 
-        // Redirijo si no se encuentra la nota.
-        if (!$note) {
-            return redirect()->route('notes.index')->with('error', 'Nota no encontrada.');
-        }
+        // Obtengo los datos de la nota y del registro de actualización usando factory
+        $data = $noteFactory->update($request, $id);
 
-        $data = $this->noteFactory->update($request, $id);
-
-        // Actualizo la nota usando el Factory
+        // Actualizo la nota en la base de datos
         DB::table('notes')
             ->where('id', $id)
             ->update($data['note_data']);
 
-        // Inserto un nuevo registro en la tabla note_edits para realizar el contador
+        // Registro la actualización en la tabla note_edits
         DB::table('note_edits')->insert($data['note_edit_data']);
 
+        // Redirijo con un mensaje de éxito
         return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
     }
 
+    
     public function destroy($id){
         //Verifico si la nota que se eliminará existe con Query Builder
         $note = DB::table('notes')
@@ -133,7 +152,7 @@ class NoteController extends Controller
         return view('notes.index', compact('notes', 'totalNotes', 'notesToday', 'editedNotes', 'totalEditions'));
     }
 
-    /*
+    
     // Función para exportar en formato JSON
     public function NotesJson($id){
         $type1 = DB::table('notes')
@@ -146,7 +165,7 @@ class NoteController extends Controller
 
             return response()->json($type1);
 
-        $type2 = DB::table('notes')
+        /*$type2 = DB::table('notes')
             ->where('id', $id)
             ->select([
                 'user_id',
@@ -169,7 +188,7 @@ class NoteController extends Controller
             ])
             ->get();
 
-            return response()->json($type3);
+            return response()->json($type3);*/
 
-    }*/
+    }
 }
