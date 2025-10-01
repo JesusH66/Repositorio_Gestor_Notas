@@ -4,7 +4,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <center><span class="material-symbols-outlined">account_circle</span>
-        <h2>PERFIL</h2></center>
+        <h2 style="text-decoration: underline">PERFIL</h2></center>
         <p>Nombre: {{ $user->name }}</p>
         <p>Email: {{ $user->email }}</p>
     </div>

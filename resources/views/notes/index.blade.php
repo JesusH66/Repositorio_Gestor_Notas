@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('content')
     <center><span class="material-symbols-outlined">add_notes</span>
-    <h2>MIS NOTAS</h2>
-    <a href="{{ route('notes.create') }}" class="btn">Crear Nueva Nota</a></center>
+    <h2 style="text-decoration: underline">MIS NOTAS</h2>
+    <a href="{{ route('notes.create') }}" class="btn" style="color:blue; text-decoration: underline">Crear Nueva Nota</a></center>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
         <div class="note-stats">
@@ -46,7 +46,8 @@
                                 @endif
                 
                                 @if($note->date)
-                                    <small class="text-muted">{{ date('d/m/Y', strtotime($note->date)) }}</small> <!-- Si queremos colocar también la hora solo colocamos H:i pero de momento solo quiero la fecha-->
+                                    <!-- Si queremos colocar también la hora solo colocamos H:i pero de momento solo quiero la fecha-->
+                                    <small class="text-muted">{{ date('d/m/Y', strtotime($note->date)) }}</small>
                                 @endif
 
                                 @if($noteType=='normal')

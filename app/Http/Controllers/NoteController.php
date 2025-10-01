@@ -13,7 +13,7 @@ use Carbon\Carbon;
 class NoteController extends Controller
 {
     public function index(){
-        // Obtengo notas del usuario con paginación de 6 por página
+        //Paginamos la cantidad de notas a 5
         $notes = DB::table('notes')
             ->where('user_id', Session::get('user_id'))
             ->orderByDesc('created_at')
@@ -40,7 +40,7 @@ class NoteController extends Controller
         // Determino si es importante
         $isImportant = $request->has('important') && $request->important;
 
-        // Determino la fecha de recordatorio
+        // Determino si tiene fecha de recordatorio
         $reminderDate = null;
         if (!$isImportant && $request->filled('date')) {
             $reminderDate = Carbon::parse($request->date);
@@ -55,7 +55,7 @@ class NoteController extends Controller
             'created_at'=>now(),
             'updated_at'=>now(),
         ]);
-        
+
         // Envío de correo electrónicopara prueba
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
 
@@ -92,6 +92,7 @@ class NoteController extends Controller
         // Determino si es importante
         $isImportant = $request->has('important') && $request->important;
         
+        // Determino si tiene fecha de recordatorio
         $reminderDate = null;
         if (!$isImportant && $request->filled('date')) {
             $reminderDate = Carbon::parse($request->date);
