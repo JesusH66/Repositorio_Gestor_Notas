@@ -24,6 +24,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::put('/notes/{id}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{id}', [NoteController::class, 'destroy'])->name('notes.destroy');
     Route::get('/notes/{id}/Json', [NoteController::class, 'NotesJson']);
+    Route::get('/notes/{id}/export', [NoteController::class, 'export'])->name('notes.export');
 });
 
 // Redirige al root

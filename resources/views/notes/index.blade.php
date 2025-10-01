@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('content')
     <center><span class="material-symbols-outlined">add_notes</span>
     <h2 style="text-decoration: underline">MIS NOTAS</h2>
@@ -67,6 +68,9 @@
                                         <span class="material-symbols-outlined">delete_forever</span>
                                     </button>
                                 </form>
+                                <button class="btn btn-sm btn-outline-success" onclick="openExportModal('{{ $note->id }}')" title="Exportar">
+                                    <span class="material-symbols-outlined">file_download</span>
+                                </button>
                             </div>
                         </div>
 
@@ -80,4 +84,49 @@
     @else
         <p>No hay notas disponibles.</p>
     @endif
+
+    <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Exportar Nota en formato Json</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="jsonContent" class="mt-3 border p-3 bg-light" style="max-height: 300px; overflow-y: auto;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentNoteId = null;
+
+        function openExportModal(noteId) {
+            currentNoteId = noteId;
+            $('#jsonContent').text('Cargando...');
+            new bootstrap.Modal(document.getElementById('exportModal')).show();
+            exportNote(noteId, 'simple');
+        }
+
+        function exportNote(noteId, style) {
+            $.ajax({
+                url: `/notes/${noteId}/export?style=${style}`,
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                success: function(data) {
+                    $('#jsonContent').text(data.json);
+                },
+                error: function(xhr) {
+                    $('#jsonContent').text('Error: ' + xhr.responseJSON.error);
+                }
+            });
+        }
+    </script>
 @endsection

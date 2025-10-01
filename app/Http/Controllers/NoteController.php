@@ -13,6 +13,8 @@ use App\Factories\ImportantNoteFactory;
 use App\Factories\RegularNoteFactory;
 use App\Factories\NoteFactoryInterface;
 use App\Factories\CommonNoteFactory;
+use App\Builders\NoteJsonDirector;
+use App\Builders\SimpleNoteJson;
 
 class NoteController extends Controller
 {
@@ -156,42 +158,30 @@ class NoteController extends Controller
     }
 
     
-    // Función para exportar en formato JSON
-    public function NotesJson($id){
-        $type1 = DB::table('notes')
+    public function export(Request $request, $id)
+    {
+        // Recupero la nota que quiero exportar
+        $note = DB::table('notes')
             ->where('id', $id)
-            ->select([
-                'title',
-                'content',   
-            ])
-            ->get();
+            ->where('user_id', Session::get('user_id'))
+            ->first();
 
-            return response()->json($type1);
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada'], 404);
+        }
 
-        /*$type2 = DB::table('notes')
-            ->where('id', $id)
-            ->select([
-                'user_id',
-                'title',
-                'content',
-                'created_at'
-            ])
-            ->get();
-            
-            return response()->json($type2);
+        // Obtengo el nievl de exportación desde la solicitud (de momento es simple)
+        $style = $request->query('style', 'simple');
 
-        $type3 = DB::table('notes')
-            ->where('id', $id)
-            ->select([
-                'user_id',
-                'title',
-                'created_at',
-                'updated_at',
+        // Creo el director y el builder
+        $director = new NoteJsonDirector();
+        $builder = new SimpleNoteJson(); 
+        $director->setBuilder($builder);
 
-            ])
-            ->get();
+        // Genero el JSON
+        $json = $director->buildSimpleJson((array) $note);
 
-            return response()->json($type3);*/
-
+        // Retorno el JSON como respuesta
+        return response()->json(['json' => $json]);
     }
 }
