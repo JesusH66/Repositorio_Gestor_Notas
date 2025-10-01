@@ -9,11 +9,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
 use Carbon\Carbon;
+use App\Factories\NoteFactory;
 
 class NoteController extends Controller
 {
     public function index(){
-        //Paginamos la cantidad de notas a 5
+        // Paginamos la cantidad de notas a 5
         $notes = DB::table('notes')
             ->where('user_id', Session::get('user_id'))
             ->orderByDesc('created_at')
@@ -27,39 +28,24 @@ class NoteController extends Controller
         return view('notes.create');
     }
 
-    public function store(Request $request){
-        // Valido los datos de entrada del formulario
-        
-        $request->validate([
-            'title'=>'required|string|max:255',
-            'content'=>'required|string|',
-            'important'=>'boolean',
-            'date'=>'nullable|date',
-        ]);
+    protected $noteFactory;
 
-        // Determino si es importante
-        $isImportant = $request->has('important') && $request->important;
+    public function __construct(NoteFactory $noteFactory)
+    {
+        $this->noteFactory = $noteFactory;
+    }
 
-        // Determino si tiene fecha de recordatorio
-        $reminderDate = null;
-        if (!$isImportant && $request->filled('date')) {
-            $reminderDate = Carbon::parse($request->date);
-        }
+    public function store(Request $request)
+    {
+        // Creo los datos de la nota usando el Factory
+        $noteData = $this->noteFactory->create($request);
 
-        DB::table('notes')->insert([
-            'user_id'=>Session::get('user_id'),
-            'title'=>$request->title,
-            'content'=>$request->content,
-            'important'=>$isImportant,
-            'date'=>$reminderDate,
-            'created_at'=>now(),
-            'updated_at'=>now(),
-        ]);
+        // Inserto la nota en la base de datos
+        DB::table('notes')->insert($noteData);
 
-        // Envío de correo electrónicopara prueba
+        // Enviar correo electrónico (curso)
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
 
-        //Redirijo con un mensaje de éxito si es que se hizo la nota sin ningún problema
         return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
     }
 
@@ -75,47 +61,30 @@ class NoteController extends Controller
         return view('notes.edit', compact('note'));
     }
 
-    public function update(Request $request, $id){
-        // Valido los datos de entrada
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'important'=>'boolean',
-            'date'=>'nullable|date',
-        ]);
-
+    public function update(Request $request, $id)
+    {
+        // Valido si la nota existe y le pertenece al usuario activo
         $note = DB::table('notes')
-            ->where('id',$id)
+            ->where('id', $id)
             ->where('user_id', Session::get('user_id'))
             ->first();
 
-        // Determino si es importante
-        $isImportant = $request->has('important') && $request->important;
-        
-        // Determino si tiene fecha de recordatorio
-        $reminderDate = null;
-        if (!$isImportant && $request->filled('date')) {
-            $reminderDate = Carbon::parse($request->date);
+        // Redirijo si no se encuentra la nota.
+        if (!$note) {
+            return redirect()->route('notes.index')->with('error', 'Nota no encontrada.');
         }
+
+        $data = $this->noteFactory->update($request, $id);
+
+        // Actualizo la nota usando el Factory
         DB::table('notes')
             ->where('id', $id)
-            ->update([
-                'title'=>$request->title,
-                'content'=>$request->content,
-                'important'=>$isImportant,
-                'date'=>$reminderDate,
-                'updated_at'=>now(),
-            ]);
+            ->update($data['note_data']);
 
-        DB::table('note_edits')->insert([
-            'note_id' => $id,
-            'user_id' => Session::get('user_id'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        
-        // Redirijo con mensaje de éxito
-        return redirect()->route('notes.index')->with('success', 'Nota actualizada con exito.');
+        // Inserto un nuevo registro en la tabla note_edits para realizar el contador
+        DB::table('note_edits')->insert($data['note_edit_data']);
+
+        return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
     }
 
     public function destroy($id){
@@ -163,4 +132,44 @@ class NoteController extends Controller
 
         return view('notes.index', compact('notes', 'totalNotes', 'notesToday', 'editedNotes', 'totalEditions'));
     }
+
+    /*
+    // Función para exportar en formato JSON
+    public function NotesJson($id){
+        $type1 = DB::table('notes')
+            ->where('id', $id)
+            ->select([
+                'title',
+                'content',   
+            ])
+            ->get();
+
+            return response()->json($type1);
+
+        $type2 = DB::table('notes')
+            ->where('id', $id)
+            ->select([
+                'user_id',
+                'title',
+                'content',
+                'created_at'
+            ])
+            ->get();
+            
+            return response()->json($type2);
+
+        $type3 = DB::table('notes')
+            ->where('id', $id)
+            ->select([
+                'user_id',
+                'title',
+                'created_at',
+                'updated_at',
+
+            ])
+            ->get();
+
+            return response()->json($type3);
+
+    }*/
 }

@@ -47,7 +47,7 @@
                 
                                 @if($note->date)
                                     <!-- Si queremos colocar también la hora solo colocamos H:i pero de momento solo quiero la fecha-->
-                                    <small class="text-muted">{{ date('d/m/Y', strtotime($note->date)) }}</small>
+                                    <small class="text-muted"> Recordatorio de la nota: {{ date('d/m/Y', strtotime($note->date)) }}.</small>
                                 @endif
 
                                 @if($noteType=='normal')

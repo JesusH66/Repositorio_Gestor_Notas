@@ -23,6 +23,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/notes/{id}/edit', [NoteController::class, 'edit'])->name('notes.edit');
     Route::put('/notes/{id}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{id}', [NoteController::class, 'destroy'])->name('notes.destroy');
+    Route::get('/notes/{id}/Json', [NoteController::class, 'NotesJson']);
 });
 
 // Redirige al root
