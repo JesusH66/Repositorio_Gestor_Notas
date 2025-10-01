@@ -18,6 +18,28 @@
             <label>Descripción de la nota</label>
             <textarea name="content">{{ $note->content }}</textarea>
         </div>
+        <div>
+            <label>
+                <input type="checkbox" name="important" value="1" id="important-checkbox" {{ $note->important ? 'checked' : '' }}>
+                Prioridad alta
+            </label>
+        </div>
+        <div id="date-field" @if($note->important) style="display: none;" @else style="display: block;" @endif>
+            <label>Fecha de recordatorio</label>
+            <input type="datetime-local" name="date" value="{{ $note->date ? date('Y-m-d\TH:i', strtotime($note->date)) : '' }}">
+        </div>
         <button type="submit">Actualizar nota</button>
     </form>
+
+    <script>
+        document.getElementById('important-checkbox').addEventListener('change', function() {
+            const dateField = document.getElementById('date-field');
+            if (this.checked) {
+                dateField.style.display = 'none';
+                dateField.querySelector('input').value = '';
+            } else {
+                dateField.style.display = 'block';
+            }
+        });
+    </script>
 @endsection

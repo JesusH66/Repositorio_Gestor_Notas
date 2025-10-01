@@ -15,23 +15,55 @@
 
     @if ($notes->count() > 0)
         @foreach ($notes as $note)
-            <div class="note-item">
-                <div class="note-content">
-                    <p>{{ $note->title }}</p>
-                    <small>{{ $note->content }}</small>
+            @php
+                $noteType = '';
+                $noteBorderClass = '';
+                if ($note->important) {
+                    $noteType = 'important';
+                    $noteBorderClass = 'important-note';
+                } elseif ($note->date) {
+                    $noteType = 'reminder';
+                    $noteBorderClass = 'reminder-note';
+                } else {
+                    $noteType = 'normal';
+                    $noteBorderClass = '';
+                }
+            @endphp
+                <div class="card shadow-sm mb-3 {{ $noteBorderClass }} {{ $note->important ? 'border border-2 border-danger' : ($note->date ? 'border border-2 border-warning' : '') }}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div>
+                                <h5 class="card-title mb-1 d-flex align-items-center gap-2">
+                                    <span>{{ $note->title }}</span>
+                                    @if($note->important)
+                                        <span class="material-symbols-outlined" style="color: red;">assignment_late</span>
+                                    @elseif($note->date)
+                                        <span class="material-symbols-outlined" style="color: orange;">nest_clock_farsight_analog</span>
+                                    @endif
+                                </h5>
+                                @if($note->date)
+                                    <small class="text-muted">{{ date('d/m/Y H:i', strtotime($note->date)) }}</small>
+                                @endif
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <form action="{{ route('notes.edit', $note->id) }}" method="GET" style="display:inline-block;">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                </form>
+                                <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                        <span class="material-symbols-outlined">delete_forever</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <p class="card-text mt-1 mb-0">{{ $note->content }}</p>
+                    </div>
                 </div>
-                <div class="actions">
-                    <form action="{{ route('notes.edit', $note->id) }}" method="post style:inline">
-                    <button><span class="material-symbols-outlined">edit</span></button>
-                    </a>
-                    </form>
-                    <form action="{{ route('notes.destroy', $note->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button><span class="material-symbols-outlined">delete_forever</span></button>
-                    </form>
-                </div>
-            </div>
         @endforeach
         <div class="pagination">
             {{ $notes->links() }}

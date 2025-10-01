@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
+use Carbon\Carbon;
 
 class NoteController extends Controller
 {
@@ -27,19 +28,30 @@ class NoteController extends Controller
     }
 
     public function store(Request $request){
-        // Valido lso datos de entrada del formulario
+        // Valido los datos de entrada del formulario
         
         $request->validate([
             'title'=>'required|string|max:255',
             'content'=>'required|string|',
+            'important'=>'boolean',
+            'date'=>'nullable|date',
         ]);
-        $now = now();
 
-        // Inserto nueva nota con insert() con user_id, título, contenido y fechas
+        // Determino si es importante
+        $isImportant = $request->has('important') && $request->important;
+        
+        // Determino la fecha de recordatorio (solo si no es importante)
+        $reminderDate = null;
+        if (!$isImportant && $request->filled('date')) {
+            $reminderDate = Carbon::parse($request->date);
+        }
+
         DB::table('notes')->insert([
             'user_id'=>Session::get('user_id'),
             'title'=>$request->title,
             'content'=>$request->content,
+            'important'=>$isImportant,
+            'date'=>$reminderDate,
             'created_at'=>now(),
             'updated_at'=>now(),
         ]);
@@ -67,6 +79,8 @@ class NoteController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'important'=>'boolean',
+            'date'=>'nullable|date',
         ]);
 
         $note = DB::table('notes')
@@ -74,12 +88,20 @@ class NoteController extends Controller
             ->where('user_id', Session::get('user_id'))
             ->first();
 
-        // Actualizo nota con Query Builder: uso update() para modificar solamente el título y contenido
+        // Determino si es importante
+        $isImportant = $request->has('important') && $request->important;
+        
+        $reminderDate = null;
+        if (!$isImportant && $request->filled('date')) {
+            $reminderDate = Carbon::parse($request->date);
+        }
         DB::table('notes')
             ->where('id', $id)
             ->update([
                 'title'=>$request->title,
                 'content'=>$request->content,
+                'important'=>$isImportant,
+                'date'=>$reminderDate,
                 'updated_at'=>now(),
             ]);
 
@@ -91,7 +113,7 @@ class NoteController extends Controller
         ]);
         
         // Redirijo con mensaje de éxito
-        return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
+        return redirect()->route('notes.index')->with('success', 'Nota actualizada con exito.');
     }
 
     public function destroy($id){
