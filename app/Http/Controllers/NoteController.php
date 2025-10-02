@@ -15,6 +15,7 @@ use App\Factories\NoteFactoryInterface;
 use App\Adapters\EvernoteAdapter;
 use App\Adapters\GoogleKeepAdapter;
 use App\Adapters\NoteAdapterInterface;
+use App\Facades\SubirNotas;
 use App\Factories\NoteFactory;
 
 class NoteController extends Controller
@@ -45,9 +46,13 @@ class NoteController extends Controller
     {
         $type = $request->has('important') && $request->input('important') ? 'important' :
                 ($request->filled('date') ? 'regular' : 'simple');
+
         $noteData = $this->noteFactory->create($request, $type);
+
         DB::table('notes')->insert($noteData);
+
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
+
         return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
     }
 
@@ -66,7 +71,9 @@ class NoteController extends Controller
         DB::table('notes')
             ->where('id', $id)
             ->update($data['note_data']);
+
         DB::table('note_edits')->insert($data['note_edit_data']);
+
         return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
     }
 
@@ -200,7 +207,6 @@ class NoteController extends Controller
         return response()->json(['message' => 'Estilo de exportación actualizado.']);
     }
 
-    // Función para generar la estructura del tipo de servicio a utilizar.
     public function sync(Request $request, $id)
     {
         $note = DB::table('notes')
@@ -212,29 +218,16 @@ class NoteController extends Controller
             return response()->json(['error' => 'Nota no encontrada.'], 404);
         }
 
-        $service = $request->query('service', $note->service ?? 'google_keep');
-
-        switch ($service) {
-            case 'google_keep':
-                $adapter = new GoogleKeepAdapter();
-                break;
-            case 'evernote':
-                $adapter = new EvernoteAdapter();
-                break;
-            default:
-                return response()->json(['error' => 'No hay servicio.'], 400);
-        }
-
-        $adaptedData = $adapter->adaptador((array) $note);
-        return response()->json(['data' => json_encode($adaptedData, JSON_PRETTY_PRINT)]);
+        $data = SubirNotas::enviar((array) $note);
+        return response()->json(['data' => $data]);
     }
 
-    // Función a utilizar para actualizar el campo de service (hace referencia al tipo de servicio)
     public function updateService(Request $request, $id)
     {
-        $request->validate([
-            'service' => 'required|in:google_keep,evernote',
-        ]);
+        $service = $request->input('service');
+        if (!in_array($service, ['google_keep', 'evernote'])) {
+            return response()->json(['error' => 'Servicio no válido.'], 400);
+        }
 
         $note = DB::table('notes')
             ->where('id', $id)
@@ -242,13 +235,13 @@ class NoteController extends Controller
             ->first();
 
         if (!$note) {
-            return response()->json(['error' => 'Nota no encontrada.'], 404);
+            return response()->json(['error' => 'Nota no encontrada o no autorizada.'], 404);
         }
 
         DB::table('notes')
             ->where('id', $id)
-            ->update(['service' => $request->service]);
+            ->update(['service' => $service]);
 
-        return response()->json(['message' => 'Servicio actualizado.']);
+        return response()->json(['message' => 'Servicio de sincronización actualizado.']);
     }
 }
