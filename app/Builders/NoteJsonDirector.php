@@ -11,7 +11,7 @@
         $this->builder = $builder;
     }
 
-    // Genero el constructor para el Json sencillo con los datos que necesito
+    // Genero el  Json sencillo con los datos que necesito
     public function buildSimpleJson(array $noteData): string
     {
         $this->builder->reset();
@@ -20,7 +20,7 @@
         return $this->builder->getResult();
     }
 
-    // Genero el constructor para el Json intermedio con los datos que necesito.
+    // Genero el Json intermedio con los datos que necesito.
     public function buildIntermediateJson(array $noteData): string
     {
         $this->builder->reset();
@@ -31,7 +31,7 @@
         return $this->builder->getResult();
     }
 
-    // Genero el constructor para el Json avanzado con los datos que necesito
+    // Genero el Json avanzado con los datos que necesito
     public function buildAdvancedJson(array $noteData, bool $wasEdited): string
     {
         $this->builder->reset();

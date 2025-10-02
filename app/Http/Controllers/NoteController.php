@@ -10,16 +10,12 @@ use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
 use Carbon\Carbon;
 use App\Builders\NoteJsonDirector;
-use App\Builders\SimpleNoteJson;
-use App\Builders\IntermediateNoteJson;
-use App\Builders\AdvancedNoteJson;
-use App\Factories\ImportantNoteFactory;
-use App\Factories\RegularNoteFactory;
-use App\Factories\CommonNoteFactory;
+use App\Builders\NoteJson;
 use App\Factories\NoteFactoryInterface;
 use App\Adapters\EvernoteAdapter;
 use App\Adapters\GoogleKeepAdapter;
 use App\Adapters\NoteAdapterInterface;
+use App\Factories\NoteFactory;
 
 class NoteController extends Controller
 {
@@ -38,49 +34,40 @@ class NoteController extends Controller
         return view('notes.create');
     }
 
-    // Almaceno una instancia de un factory del tipo de nota que se trate
-    protected $regularNoteFactory;
-    protected $importantNoteFactory;
-    protected $commonNoteFactory;
+    protected $noteFactory;
 
-    // Constructor de Note_Controller
-    public function __construct(
-        RegularNoteFactory $regularNoteFactory,
-        ImportantNoteFactory $importantNoteFactory,
-        CommonNoteFactory $commonNoteFactory
-    ) {
-        $this->regularNoteFactory = $regularNoteFactory;
-        $this->importantNoteFactory = $importantNoteFactory;
-        $this->commonNoteFactory = $commonNoteFactory;
-    }
-     
-    // Determino que factory utilizar en base a los datos enviados 
-    protected function getNoteFactory(Request $request): NoteFactoryInterface
+    public function __construct(NoteFactory $noteFactory)
     {
-        if ($request->has('important') && $request->important) {
-            return $this->importantNoteFactory;
-        } elseif ($request->filled('date')) {
-            return $this->regularNoteFactory;
-        }
-        return $this->commonNoteFactory;
+        $this->noteFactory = $noteFactory;
     }
 
     public function store(Request $request)
     {
-        // Selecciono el factory para el tipo de nota que se trata
-        $noteFactory = $this->getNoteFactory($request);
-
-        // Creo los datos para la elaboración de la nota usanso el factory
-        $noteData = $noteFactory->create($request);
-
-        // Inserto la nota en la base de datos
+        $type = $request->has('important') && $request->input('important') ? 'important' :
+                ($request->filled('date') ? 'regular' : 'simple');
+        $noteData = $this->noteFactory->create($request, $type);
         DB::table('notes')->insert($noteData);
-
-        // Envío un correo (curso)
         Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
-
-        // Redirijo con mensaje de éxito
         return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return redirect()->route('notes.index')->with('error', 'Nota no encontrada');
+        }
+
+        $data = $this->noteFactory->update($request, $id);
+        DB::table('notes')
+            ->where('id', $id)
+            ->update($data['note_data']);
+        DB::table('note_edits')->insert($data['note_edit_data']);
+        return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
     }
 
     public function edit($id){
@@ -95,27 +82,6 @@ class NoteController extends Controller
         return view('notes.edit', compact('note'));
     }
 
-    public function update(Request $request, $id)
-    {
-        // Selecciono el factory adecuado
-        $noteFactory = $this->getNoteFactory($request);
-
-        // Obtengo los datos de la nota y del registro de actualización usando factory
-        $data = $noteFactory->update($request, $id);
-
-        // Actualizo la nota en la base de datos
-        DB::table('notes')
-            ->where('id', $id)
-            ->update($data['note_data']);
-
-        // Registro la actualización en la tabla note_edits
-        DB::table('note_edits')->insert($data['note_edit_data']);
-
-        // Redirijo con un mensaje de éxito
-        return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
-    }
-
-    
     public function destroy($id){
         //Verifico si la nota que se eliminará existe con Query Builder
         $note = DB::table('notes')
@@ -185,15 +151,15 @@ class NoteController extends Controller
         $director = new NoteJsonDirector();
         switch ($style) {
             case 'simple':
-                $builder = new SimpleNoteJson();
+                $builder = new NoteJson();
                 $method = 'buildSimpleJson';
                 break;
             case 'intermedio':
-                $builder = new IntermediateNoteJson();
+                $builder = new NoteJson();
                 $method = 'buildIntermediateJson';
                 break;
             case 'avanzado':
-                $builder = new AdvancedNoteJson();
+                $builder = new NoteJson();
                 $method = 'buildAdvancedJson';
                 break;
             default:
@@ -211,6 +177,7 @@ class NoteController extends Controller
         return response()->json(['json' => $json]);
     }
 
+    // Función para actualizar el campo style (hace referencia al tipo de exportación Json)
     public function updateExportStyle(Request $request, $id)
     {
         $request->validate([
@@ -233,6 +200,7 @@ class NoteController extends Controller
         return response()->json(['message' => 'Estilo de exportación actualizado.']);
     }
 
+    // Función para generar la estructura del tipo de servicio a utilizar.
     public function sync(Request $request, $id)
     {
         $note = DB::table('notes')
@@ -261,6 +229,7 @@ class NoteController extends Controller
         return response()->json(['data' => json_encode($adaptedData, JSON_PRETTY_PRINT)]);
     }
 
+    // Función a utilizar para actualizar el campo de service (hace referencia al tipo de servicio)
     public function updateService(Request $request, $id)
     {
         $request->validate([

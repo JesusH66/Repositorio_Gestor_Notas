@@ -6,6 +6,6 @@ use Illuminate\Http\Request;
 
 interface NoteFactoryInterface
 {
-    public function create(Request $request): array;
-    public function update(Request $request, $id): array;
+    public function create(Request $request, string $type): array;
+    public function update(Request $request, int $id): array;
 }

@@ -2,11 +2,12 @@
 
 namespace App\Builders;
 
-class IntermediateNoteJson implements NoteJsonInterface
+class NoteJson implements NoteJsonInterface
 {
     protected array $data = [];
 
-    // Funciones que me retornarán los datos que requiero para hacer la nota intermedia
+    // Funciones que me retornarán los datos que requiero para hacer la nota avanzada
+
     public function reset(): void
     {
         $this->data = [];
@@ -34,26 +35,27 @@ class IntermediateNoteJson implements NoteJsonInterface
 
     public function addUpdatedAt(string $updatedAt): void
     {
-        // No lo usaremos para la nota intermedia
+        $this->data['Edicion de nota'] = $updatedAt;
     }
 
     public function addEdited(bool $wasEdited): void
     {
-        // No lo usaremos para la nota intermedia
+        $this->data['Fue editada?'] = $wasEdited;
     }
 
     public function addImportant(bool $important): void
     {
-        // No lo usaremos para la nota intermedia
+        $this->data['Importante'] = $important;
     }
 
     public function addReminder(string $date = null): void
     {
-        // No lo usaremos para la nota intermedia
+        $this->data['Fecha recordatorio'] = $date;
     }
 
     public function getResult(): string
     {
         return json_encode($this->data, JSON_PRETTY_PRINT);
     }
+    
 }

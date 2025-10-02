@@ -71,7 +71,7 @@
                                 <button class="btn btn-sm btn-outline-success" onclick="openExportModal('{{ $note->id }}')" title="Exportar">
                                     <span class="material-symbols-outlined">file_download</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-info" onclick="openSyncModal({{ $note->id }})" title="Sincronizar">
+                                <button class="btn btn-sm btn-outline-info" onclick="openSyncModal('{{ $note->id }}')" title="Enviar nota">
                                     <span class="material-symbols-outlined">sync</span>
                                 </button>
                             </div>
@@ -177,7 +177,7 @@
 
         function openSyncModal(noteId) {
             currentNoteId = noteId;
-            $('#syncContent').text('Cargando...');
+            $('#syncContent').text('Selecciona un servicio');
             new bootstrap.Modal(document.getElementById('syncModal')).show();
             syncNote(noteId, 'google_keep');
         }
@@ -190,7 +190,7 @@
                 success: function(data) {
                     $('#syncContent').text(data.data);
                     $.ajax({
-                        url: `/notes/${noteId}/service`,
+                        url: `/notes/${noteId}/servicio`,
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
