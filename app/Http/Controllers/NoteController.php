@@ -9,12 +9,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
 use Carbon\Carbon;
-use App\Factories\ImportantNoteFactory;
-use App\Factories\RegularNoteFactory;
-use App\Factories\NoteFactoryInterface;
-use App\Factories\CommonNoteFactory;
 use App\Builders\NoteJsonDirector;
 use App\Builders\SimpleNoteJson;
+use App\Builders\IntermediateNoteJson;
+use App\Builders\AdvancedNoteJson;
+use App\Factories\ImportantNoteFactory;
+use App\Factories\RegularNoteFactory;
+use App\Factories\CommonNoteFactory;
+use App\Factories\NoteFactoryInterface;
 
 class NoteController extends Controller
 {
@@ -160,7 +162,7 @@ class NoteController extends Controller
     
     public function export(Request $request, $id)
     {
-        // Recupero la nota que quiero exportar
+        // Recupero la nota
         $note = DB::table('notes')
             ->where('id', $id)
             ->where('user_id', Session::get('user_id'))
@@ -170,18 +172,61 @@ class NoteController extends Controller
             return response()->json(['error' => 'Nota no encontrada'], 404);
         }
 
-        // Obtengo el nievl de exportación desde la solicitud (de momento es simple)
-        $style = $request->query('style', 'simple');
+        // Verifico si fue editada
+        $wasEdited = DB::table('note_edits')->where('note_id', $id)->exists();
 
-        // Creo el director y el builder
+        // Obtengo el estilo de exportación 
+        $style = $request->query('style', $note->export_style ?? 'simple');
+
+        // Creo el director y selecciono el builder a utilizar
         $director = new NoteJsonDirector();
-        $builder = new SimpleNoteJson(); 
+        switch ($style) {
+            case 'simple':
+                $builder = new SimpleNoteJson();
+                $method = 'buildSimpleJson';
+                break;
+            case 'intermedio':
+                $builder = new IntermediateNoteJson();
+                $method = 'buildIntermediateJson';
+                break;
+            case 'avanzado':
+                $builder = new AdvancedNoteJson();
+                $method = 'buildAdvancedJson';
+                break;
+            default:
+                return response()->json(['error' => 'Estilo de exportación no válido.'], 400);
+        }
+
         $director->setBuilder($builder);
 
         // Genero el JSON
-        $json = $director->buildSimpleJson((array) $note);
+        $json = $style === 'avanzado'
+            ? $director->$method((array) $note, $wasEdited)
+            : $director->$method((array) $note);
 
-        // Retorno el JSON como respuesta
+        // Retorno el Json que hemos creado en base al tipo
         return response()->json(['json' => $json]);
+    }
+
+    public function updateExportStyle(Request $request, $id)
+    {
+        $request->validate([
+            'export_style' => 'required|in:simple,intermedio,avanzado',
+        ]);
+
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada'], 404);
+        }
+
+        DB::table('notes')
+            ->where('id', $id)
+            ->update(['export_style' => $request->export_style]);
+
+        return response()->json(['message' => 'Estilo de exportación actualizado.']);
     }
 }

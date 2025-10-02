@@ -85,14 +85,21 @@
         <p>No hay notas disponibles.</p>
     @endif
 
+    <!-- Modal para exportar -->
     <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Exportar Nota en formato Json</h5>
+                    <h5 class="modal-title">Exportar Nota</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
+                    <p>Selecciona el nivel de exportación:</p>
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-primary" onclick="exportNote(currentNoteId, 'simple')">Simple</button>
+                        <button class="btn btn-primary" onclick="exportNote(currentNoteId, 'intermedio')">Intermedio</button>
+                        <button class="btn btn-primary" onclick="exportNote(currentNoteId, 'avanzado')">Avanzado</button>
+                    </div>
                     <pre id="jsonContent" class="mt-3 border p-3 bg-light" style="max-height: 300px; overflow-y: auto;"></pre>
                 </div>
                 <div class="modal-footer">
@@ -110,9 +117,8 @@
 
         function openExportModal(noteId) {
             currentNoteId = noteId;
-            $('#jsonContent').text('Cargando...');
+            $('#jsonContent').text('Selecciona un estilo de exportación');
             new bootstrap.Modal(document.getElementById('exportModal')).show();
-            exportNote(noteId, 'simple');
         }
 
         function exportNote(noteId, style) {
@@ -122,6 +128,22 @@
                 headers: { 'Accept': 'application/json' },
                 success: function(data) {
                     $('#jsonContent').text(data.json);
+                    $.ajax({
+                        url: `/notes/${noteId}/export-style`,
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({ export_style: style }),
+                        success: function() {
+                            console.log('Estilo de exportación actualizado');
+                        },
+                        error: function(xhr) {
+                            console.error('Error al actualizar estilo:', xhr.responseJSON.error);
+                        }
+                    });
                 },
                 error: function(xhr) {
                     $('#jsonContent').text('Error: ' + xhr.responseJSON.error);
