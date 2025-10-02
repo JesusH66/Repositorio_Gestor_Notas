@@ -17,6 +17,9 @@ use App\Factories\ImportantNoteFactory;
 use App\Factories\RegularNoteFactory;
 use App\Factories\CommonNoteFactory;
 use App\Factories\NoteFactoryInterface;
+use App\Adapters\EvernoteAdapter;
+use App\Adapters\GoogleKeepAdapter;
+use App\Adapters\NoteAdapterInterface;
 
 class NoteController extends Controller
 {
@@ -162,7 +165,7 @@ class NoteController extends Controller
     
     public function export(Request $request, $id)
     {
-        // Recupero la nota
+        // Recupero la nota que se necesita
         $note = DB::table('notes')
             ->where('id', $id)
             ->where('user_id', Session::get('user_id'))
@@ -228,5 +231,55 @@ class NoteController extends Controller
             ->update(['export_style' => $request->export_style]);
 
         return response()->json(['message' => 'Estilo de exportación actualizado.']);
+    }
+
+    public function sync(Request $request, $id)
+    {
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada.'], 404);
+        }
+
+        $service = $request->query('service', $note->service ?? 'google_keep');
+
+        switch ($service) {
+            case 'google_keep':
+                $adapter = new GoogleKeepAdapter();
+                break;
+            case 'evernote':
+                $adapter = new EvernoteAdapter();
+                break;
+            default:
+                return response()->json(['error' => 'No hay servicio.'], 400);
+        }
+
+        $adaptedData = $adapter->adaptador((array) $note);
+        return response()->json(['data' => json_encode($adaptedData, JSON_PRETTY_PRINT)]);
+    }
+
+    public function updateService(Request $request, $id)
+    {
+        $request->validate([
+            'service' => 'required|in:google_keep,evernote',
+        ]);
+
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada.'], 404);
+        }
+
+        DB::table('notes')
+            ->where('id', $id)
+            ->update(['service' => $request->service]);
+
+        return response()->json(['message' => 'Servicio actualizado.']);
     }
 }

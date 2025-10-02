@@ -6,6 +6,8 @@ class AdvancedNoteJson implements NoteJsonInterface
 {
     protected array $data = [];
 
+    // Funciones que me retornarán los datos que requiero para hacer la nota avanzada
+
     public function reset(): void
     {
         $this->data = [];

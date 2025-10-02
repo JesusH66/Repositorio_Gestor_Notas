@@ -6,6 +6,8 @@
    {
         protected array $data = [];
 
+        // Funciones que me retornarán los datos que requiero para hacer la nota simple
+
         public function reset(): void
         {
             $this->data = [];
@@ -23,32 +25,32 @@
 
         public function addAuthor(int $userId): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function addCreatedAt(string $createdAt): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function addUpdatedAt(string $updatedAt): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function addEdited(bool $wasEdited): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function addImportant(bool $important): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function addReminder(string $date = null): void
         {
-            // No lo usaremos para la nota simple
+            // No lo usaremos para la nota simple.
         }
 
         public function getResult(): string

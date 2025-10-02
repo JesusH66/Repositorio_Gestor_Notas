@@ -6,6 +6,7 @@ class IntermediateNoteJson implements NoteJsonInterface
 {
     protected array $data = [];
 
+    // Funciones que me retornarán los datos que requiero para hacer la nota intermedia
     public function reset(): void
     {
         $this->data = [];

@@ -71,9 +71,11 @@
                                 <button class="btn btn-sm btn-outline-success" onclick="openExportModal('{{ $note->id }}')" title="Exportar">
                                     <span class="material-symbols-outlined">file_download</span>
                                 </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="openSyncModal({{ $note->id }})" title="Sincronizar">
+                                    <span class="material-symbols-outlined">sync</span>
+                                </button>
                             </div>
                         </div>
-
                         <p class="card-text mt-1 mb-0">{{ $note->content }}</p>
                     </div>
                 </div>
@@ -85,7 +87,6 @@
         <p>No hay notas disponibles.</p>
     @endif
 
-    <!-- Modal para exportar -->
     <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -109,7 +110,29 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <div class="modal fade" id="syncModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Subir Nota a servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona el servicio:</p>
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-primary" onclick="syncNote(currentNoteId, 'google_keep')">Google Keep</button>
+                        <button class="btn btn-primary" onclick="syncNote(currentNoteId, 'evernote')">Evernote</button>
+                    </div>
+                    <pre id="syncContent" class="mt-3 border p-3 bg-light" style="max-height: 300px; overflow-y: auto;"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -148,6 +171,43 @@
                 },
                 error: function(xhr) {
                     $('#jsonContent').text('Error: ' + xhr.responseJSON.error);
+                }
+            });
+        }
+
+        function openSyncModal(noteId) {
+            currentNoteId = noteId;
+            $('#syncContent').text('Cargando...');
+            new bootstrap.Modal(document.getElementById('syncModal')).show();
+            syncNote(noteId, 'google_keep');
+        }
+
+        function syncNote(noteId, service) {
+            $.ajax({
+                url: `/notes/${noteId}/sync?service=${service}`,
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                success: function(data) {
+                    $('#syncContent').text(data.data);
+                    $.ajax({
+                        url: `/notes/${noteId}/service`,
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({ service: service }),
+                        success: function() {
+                            console.log('Servicio actualizado');
+                        },
+                        error: function(xhr) {
+                            console.error('Error al actualizar servicio:', xhr.responseJSON.error);
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    $('#syncContent').text('Error: ' + xhr.responseJSON.error);
                 }
             });
         }

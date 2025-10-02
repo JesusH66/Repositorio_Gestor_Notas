@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('note_edits', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('notes', function (Blueprint $table) {
+            $table->string('service')->nullable();
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('note_edits');
+        Schema::table('notes', function (Blueprint $table) {
+            $table->dropColumn('service');
+        });
     }
 };
