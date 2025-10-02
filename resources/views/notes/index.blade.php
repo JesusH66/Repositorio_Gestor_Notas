@@ -117,8 +117,9 @@
 
         function openExportModal(noteId) {
             currentNoteId = noteId;
-            $('#jsonContent').text('Selecciona un estilo de exportación');
+            $('#jsonContent').text('Selecciona un estilo para exportar');
             new bootstrap.Modal(document.getElementById('exportModal')).show();
+            exportNote(noteId, 'simple'); 
         }
 
         function exportNote(noteId, style) {
@@ -129,7 +130,7 @@
                 success: function(data) {
                     $('#jsonContent').text(data.json);
                     $.ajax({
-                        url: `/notes/${noteId}/export-style`,
+                        url: `/notes/${noteId}/exportarEstilo`,
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
