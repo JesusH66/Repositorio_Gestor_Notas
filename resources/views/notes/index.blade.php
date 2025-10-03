@@ -142,7 +142,6 @@
             currentNoteId = noteId;
             $('#jsonContent').text('Selecciona un estilo para exportar');
             new bootstrap.Modal(document.getElementById('exportModal')).show();
-            exportNote(noteId, 'simple'); 
         }
 
         function exportNote(noteId, style) {
@@ -179,7 +178,6 @@
             currentNoteId = noteId;
             $('#syncContent').text('Selecciona un servicio');
             new bootstrap.Modal(document.getElementById('syncModal')).show();
-            syncNote(noteId, 'google_keep');
         }
 
         function syncNote(noteId, service) {
@@ -190,7 +188,7 @@
                 success: function(data) {
                     $('#syncContent').text(data.data);
                     $.ajax({
-                        url: `/notes/${noteId}/servicio`,
+                        url: `/notes/${noteId}/service`,
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),

@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Bus\UpdatedBatchJobCounts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use App\Mail\NotaMail;
-use Carbon\Carbon;
 use App\Builders\NoteJsonDirector;
-use App\Builders\NoteJson;
+use App\Builders\NoteJsonAdvance;
+use App\Builders\NoteJsonSimple;
+use App\Builders\NoteJsonNormal;
 use App\Factories\NoteFactoryInterface;
+use InvalidArgumentException;
 use App\Adapters\EvernoteAdapter;
 use App\Adapters\GoogleKeepAdapter;
-use App\Adapters\NoteAdapterInterface;
 use App\Facades\SubirNotas;
-use App\Factories\NoteFactory;
+
 
 class NoteController extends Controller
 {
@@ -37,44 +37,77 @@ class NoteController extends Controller
 
     protected $noteFactory;
 
-    public function __construct(NoteFactory $noteFactory)
+    public function __construct(NoteFactoryInterface $noteFactory)
     {
         $this->noteFactory = $noteFactory;
     }
 
     public function store(Request $request)
     {
+        // Valido los datos de entrada
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'date' => 'nullable|date',
+            'important' => 'nullable|boolean',
+        ]);
+
+        // Determino el tipo de nota
         $type = $request->has('important') && $request->input('important') ? 'important' :
                 ($request->filled('date') ? 'regular' : 'simple');
 
-        $noteData = $this->noteFactory->create($request, $type);
+        try {
+            // Creo los datos de la nota usando la fábrica
+            $noteData = $this->noteFactory->create($request, $type);
 
-        DB::table('notes')->insert($noteData);
+            // Inserto en la base de datos
+            DB::table('notes')->insert($noteData);
 
-        Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
+            // Envío correo
+            Mail::to('pruebaNotas@prueba.com')->send(new NotaMail());
 
-        return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
+            return redirect()->route('notes.index')->with('success', 'Nota creada exitosamente.');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->route('notes.index')->with('error', $e->getMessage());
+        }
     }
 
     public function update(Request $request, $id)
     {
+        // Valido los datos de entrada
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'date' => 'nullable|date',
+            'important' => 'nullable|boolean',
+        ]);
+
+        // Verifico que la nota existe y pertenece al usuario
         $note = DB::table('notes')
             ->where('id', $id)
             ->where('user_id', Session::get('user_id'))
             ->first();
 
         if (!$note) {
-            return redirect()->route('notes.index')->with('error', 'Nota no encontrada');
+            return redirect()->route('notes.index')->with('error', 'Nota no encontrada.');
         }
 
-        $data = $this->noteFactory->update($request, $id);
-        DB::table('notes')
-            ->where('id', $id)
-            ->update($data['note_data']);
+        try {
+            // Obtengo los datos de actualización
+            $data = $this->noteFactory->update($request, $id);
 
-        DB::table('note_edits')->insert($data['note_edit_data']);
+            // Actualizo la tabla 'notes'
+            DB::table('notes')
+                ->where('id', $id)
+                ->update($data['note_data']);
 
-        return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
+            // Inserto en la tabla 'note_edits'
+            DB::table('note_edits')->insert($data['note_edit_data']);
+
+            return redirect()->route('notes.index')->with('success', 'Nota actualizada con éxito.');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->route('notes.index')->with('error', $e->getMessage());
+        }
     }
 
     public function edit($id){
@@ -158,15 +191,15 @@ class NoteController extends Controller
         $director = new NoteJsonDirector();
         switch ($style) {
             case 'simple':
-                $builder = new NoteJson();
+                $builder = new NoteJsonSimple();
                 $method = 'buildSimpleJson';
                 break;
             case 'intermedio':
-                $builder = new NoteJson();
+                $builder = new NoteJsonNormal();
                 $method = 'buildIntermediateJson';
                 break;
             case 'avanzado':
-                $builder = new NoteJson();
+                $builder = new NoteJsonAdvance();
                 $method = 'buildAdvancedJson';
                 break;
             default:
@@ -255,4 +288,58 @@ class NoteController extends Controller
 
         return response()->json(['message' => 'Servicio de sincronización actualizado.']);
     }
+    
+    /*
+        public function sync(Request $request, $id)
+    {
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada o no autorizada.'], 404);
+        }
+
+        $service = $request->query('service', $note->service ?? 'google_keep');
+
+        switch ($service) {
+            case 'google_keep':
+                $adapter = new GoogleKeepAdapter();
+                break;
+            case 'evernote':
+                $adapter = new EvernoteAdapter();
+                break;
+            default:
+                return response()->json(['error' => 'Servicio no válido.'], 400);
+        }
+
+        $adaptedData = $adapter->adapt((array) $note);
+        return response()->json(['data' => json_encode($adaptedData, JSON_PRETTY_PRINT)]);
+    }
+
+    public function updateService(Request $request, $id)
+    {
+        $request->validate([
+            'service' => 'required|in:google_keep,evernote',
+        ]);
+
+        $note = DB::table('notes')
+            ->where('id', $id)
+            ->where('user_id', Session::get('user_id'))
+            ->first();
+
+        if (!$note) {
+            return response()->json(['error' => 'Nota no encontrada o no autorizada.'], 404);
+        }
+
+        DB::table('notes')
+            ->where('id', $id)
+            ->update(['service' => $request->service]);
+
+        return response()->json(['message' => 'Servicio de sincronización actualizado.']);
+    }
+
+    */
+        
 }

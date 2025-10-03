@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+
 
 class AuthController extends Controller
 {
@@ -38,7 +40,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Validamos mediante Query Builder y el login que el usuario posee una cuenta
     public function login(Request $request){
         $request->validate([
             'email' => 'required|string|email',

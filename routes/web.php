@@ -26,7 +26,7 @@ Route::middleware('auth.custom')->group(function () {
     Route::get('/notes/{id}/export', [NoteController::class, 'export'])->name('notes.export');
     Route::post('/notes/{id}/exportarEstilo', [NoteController::class, 'updateExportStyle'])->name('notes.export-style');
     Route::get('/notes/{id}/sync', [NoteController::class, 'sync'])->name('notes.sync');
-    Route::post('/notes/{id}/servicio', [NoteController::class, 'updateService'])->name('notes.service');
+    Route::post('/notes/{id}/service', [NoteController::class, 'updateService'])->name('notes.service');
 });
 
 // Redirige al root

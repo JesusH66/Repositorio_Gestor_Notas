@@ -18,13 +18,16 @@ class SubirNotas
     {
         // Obtengo el servicio de la nota
         $service = $noteData['service'] ?? 'google_keep';
-
+        
         // Selecciono la clase del adaptador correspondiente al servicio
+        if (!isset(self::$adapters[$service])) {
+            throw new \Exception("Servicio no válido: $service");
+        }
+        
+        // Retorno los datos como Json
         $adapterClass = self::$adapters[$service];
         $adapter = new $adapterClass();
-
-        // Retorno los datos como Json
-        $adaptedData = $adapter->adapt($noteData);
+        $adaptedData = $adapter->adaptador($noteData);
         
         return json_encode($adaptedData, JSON_PRETTY_PRINT);
     }

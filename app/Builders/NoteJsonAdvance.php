@@ -2,7 +2,7 @@
 
 namespace App\Builders;
 
-class NoteJson implements NoteJsonInterface
+class NoteJsonAdvance implements NoteJsonInterface
 {
     protected array $data = [];
 
