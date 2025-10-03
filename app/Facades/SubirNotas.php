@@ -32,8 +32,5 @@ class SubirNotas
         return json_encode($adaptedData, JSON_PRETTY_PRINT);
     }
 
-    public static function registerAdapter(string $service, string $adapterClass): void
-    {
-        self::$adapters[$service] = $adapterClass;
-    }
+    
 }

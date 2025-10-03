@@ -51,6 +51,7 @@ class NoteJsonNormal implements NoteJsonInterface
 
     public function getResult(): string
     {
+        
         return json_encode($this->data, JSON_PRETTY_PRINT);
     }
     

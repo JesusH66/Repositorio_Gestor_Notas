@@ -183,31 +183,21 @@
         function syncNote(noteId, service) {
             $.ajax({
                 url: `/notes/${noteId}/sync?service=${service}`,
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
+                method: 'POST', // Solo hago una función POST para enviar el servicio en el cuerpo
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({ service: service }),
                 success: function(data) {
-                    $('#syncContent').text(data.data);
-                    $.ajax({
-                        url: `/notes/${noteId}/service`,
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        data: JSON.stringify({ service: service }),
-                        success: function() {
-                            console.log('Servicio actualizado');
-                        },
-                        error: function(xhr) {
-                            console.error('Error al actualizar servicio:', xhr.responseJSON.error);
-                        }
-                    });
+                    $('#syncContent').text(data.data); // Muestro los datos sincronizadoss
+                    console.log(data.message); // Muestro el mensaje de éxito
                 },
                 error: function(xhr) {
                     $('#syncContent').text('Error: ' + xhr.responseJSON.error);
                 }
             });
-        }
+}
     </script>
 @endsection

@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Session;
 
 abstract class AbstractNoteFactory implements NoteFactoryInterface
 {
+    // Proporciono lógica común en los métodos protegidos getBaseNoteData y getBaseUpdateData
     protected function getBaseNoteData(Request $request): array
     {
+        // Represento los datos de la nota, que es el resultado del proceso de creación o actualización.
         return [
             'user_id' => Session::get('user_id'),
             'title' => $request->input('title', ''),
