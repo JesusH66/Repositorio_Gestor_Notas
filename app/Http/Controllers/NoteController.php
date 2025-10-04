@@ -241,41 +241,14 @@ class NoteController extends Controller
     }
 
 
-    public function sync(Request $request, $id)
-{
-    // Obtengo el servicio de la solicitud
-    $service = $request->input('service');
+    public function sync(Request $request, string $id)
+    {
+        // Obtener el servicio de la solicitud
+        $service = $request->input('service', 'google_keep');
 
-    // Verifico si el servicio es válido
-    if (!in_array($service, ['google_keep', 'evernote'])) {
-        return response()->json(['error' => 'Servicio no válido.'], 400);
+        // Llamar a la facade para procesar la sincronización
+        return SubirNotas::enviar($id, $service);
     }
-
-    // Busco la nota en la base de datos por ID y usuario
-    $note = DB::table('notes')
-        ->where('id', $id)
-        ->where('user_id', Session::get('user_id'))
-        ->first();
-
-    // Verifico si existe la nota
-    if (!$note) {
-        return response()->json(['error' => 'Nota no encontrada o no autorizada.'], 404);
-    }
-
-    // Actualizo el metadato del servicio
-    DB::table('notes')
-        ->where('id', $id)
-        ->update(['service' => $service]);
-
-    // Llamo la fachada para transformar la nota al formato del servicio
-    $data = SubirNotas::enviar((array) $note);
-
-    // Retorno la respuesta con los datos transformados y el mensaje de éxito
-    return response()->json([
-        'message' => 'Servicio de sincronización actualizado.',
-        'data' => $data
-    ]);
-}
     
     /*
         public function sync(Request $request, $id)

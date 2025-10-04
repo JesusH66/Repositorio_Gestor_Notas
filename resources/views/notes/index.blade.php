@@ -183,7 +183,7 @@
         function syncNote(noteId, service) {
             $.ajax({
                 url: `/notes/${noteId}/sync?service=${service}`,
-                method: 'POST', // Solo hago una función POST para enviar el servicio en el cuerpo
+                method: 'POST', // Solo hago una petición POST para enviar el servicio en el cuerpo
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                     'Accept': 'application/json',
