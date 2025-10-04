@@ -3,7 +3,7 @@ namespace App\Builders;
 
 use InvalidArgumentException;
 
-class NoteJsonSimple implements NoteJsonInterface
+class NoteJsonSimpleBuilder implements NoteJsonInterface
 {
     private array $data = [];
 
@@ -56,30 +56,15 @@ class NoteJsonSimple implements NoteJsonInterface
 
     }
 
-    public function buildSimple(array $noteData): void
-    {
-        $requiredKeys = ['title', 'content'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($noteData[$key]) || empty(trim($noteData[$key]))) {
-                throw new InvalidArgumentException("El campo requerido '$key' no está presente o está vacío");
-            }
-        }
 
+    public function getResult($noteData): string
+    {
         $this->reset();
         $this->produceTitle($noteData['title']);
         $this->produceContent($noteData['content']);
-    }
-
-    public function getResult(): string
-    {
-        $requiredKeys = ['title', 'content'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($this->data[$key]) || empty($this->data[$key])) {
-                throw new InvalidArgumentException("El campo requerido '$key' no está establecido");
-            }
-        }
         $result = json_encode($this->data, JSON_PRETTY_PRINT);
         $this->reset();
         return $result;
     }
+
 }

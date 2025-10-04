@@ -12,6 +12,5 @@ interface NoteJsonInterface
     public function produceEdited(bool $wasEdited): void;
     public function produceImportant(bool $isImportant): void;
     public function produceReminder(?string $reminder): void;
-    
-    public function getResult(): string;
+    public function getResult($noteData): string;
 }

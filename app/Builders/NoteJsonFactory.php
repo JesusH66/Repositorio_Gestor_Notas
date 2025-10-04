@@ -3,17 +3,17 @@ namespace App\Builders;
 
 use InvalidArgumentException;
 
-class NoteBuilder
+class NoteJsonFactory
 {
     public static function getBuilder(string $type): NoteJsonInterface
     {
         switch ($type) {
             case 'simple':
-                return new NoteJsonSimple();
+                return new NoteJsonSimpleBuilder();
             case 'intermedio':
-                return new NoteJsonNormal();
+                return new NoteJsonNormalBuilder();
             case 'avanzado':
-                return new NoteJsonAdvance();
+                return new NoteJsonAdvanceBuilder();
             default:
                 throw new InvalidArgumentException("Tipo de nota no válido: $type");
         }

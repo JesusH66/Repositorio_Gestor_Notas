@@ -16,7 +16,8 @@ use InvalidArgumentException;
 use App\Adapters\EvernoteAdapter;
 use App\Adapters\GoogleKeepAdapter;
 use App\Facades\SubirNotas;
-use App\Builders\NoteBuilder;
+use App\Builders\NoteJsonFactory;
+use Exception;
 
 class NoteController extends Controller
 {
@@ -189,7 +190,7 @@ class NoteController extends Controller
             $style = $request->query('style', $note->export_style ?? 'simple');
 
             // Obtengo el builder usando el factory
-            $builder = NoteBuilder::getBuilder($style);
+            $builder = NoteJsonFactory::getBuilder($style);
 
             // Preparo los datos de la nota
             $noteData = [
@@ -200,20 +201,13 @@ class NoteController extends Controller
                 'updated_at' => $note->updated_at ?? null,
                 'important' => $note->important ?? false,
                 'date' => $note->reminder ?? null,
+                'was_edited' => $wasEdited
             ];
 
-            if ($style === 'simple') {
-                $builder->buildSimple($noteData);
-            } elseif ($style === 'intermedio') {
-                $builder->buildIntermediate($noteData);
-            } elseif ($style === 'avanzado') {
-                $builder->buildAdvanced($noteData, $wasEdited);
-            } else {
-                return response()->json(['error' => 'Estilo de exportación no válido.'], 400);
-            }
+            
 
             // Obtengo el JSON
-            $json = $builder->getResult();
+            $json = $builder->getResult($noteData);
 
             // Actualizo el metadato export_style
             DB::table('notes')

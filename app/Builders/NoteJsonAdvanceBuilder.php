@@ -4,7 +4,7 @@ namespace App\Builders;
 use InvalidArgumentException;
 use Illuminate\Support\Carbon;
 
-class NoteJsonNormal implements NoteJsonInterface
+class NoteJsonAdvanceBuilder implements NoteJsonInterface
 {
     private array $data = [];
 
@@ -40,48 +40,36 @@ class NoteJsonNormal implements NoteJsonInterface
 
     public function produceUpdatedAt(?string $updatedAt): void
     {
-
+        $this->data['updated_at'] = $updatedAt;
     }
 
     public function produceEdited(bool $wasEdited): void
     {
-
+        $this->data['was_edited'] = $wasEdited;
     }
 
     public function produceImportant(bool $isImportant): void
     {
-
+        $this->data['is_important'] = $isImportant;
     }
 
     public function produceReminder(?string $reminder): void
     {
-
+        $this->data['reminder'] = $reminder;
     }
 
-    public function buildIntermediate(array $noteData): void
-    {
-        $requiredKeys = ['title', 'content', 'user_id', 'created_at'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($noteData[$key]) || ($key !== 'created_at' && empty(trim($noteData[$key])))) {
-                throw new InvalidArgumentException("El campo requerido '$key' no está presente o está vacío");
-            }
-        }
 
+    public function getResult($noteData): string
+    {
         $this->reset();
         $this->produceTitle($noteData['title']);
         $this->produceContent($noteData['content']);
         $this->produceUserId($noteData['user_id']);
         $this->produceCreatedAt($noteData['created_at']);
-    }
-
-    public function getResult(): string
-    {
-        $requiredKeys = ['user_id', 'title', 'content'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($this->data[$key]) || empty($this->data[$key])) {
-                throw new InvalidArgumentException("El campo requerido '$key' no está establecido");
-            }
-        }
+        $this->produceUpdatedAt($noteData['updated_at']);
+        $this->produceEdited($noteData['was_edited']);
+        $this->produceImportant($noteData['important']);
+        $this->produceReminder($noteData['date'] ?? null);
         $result = json_encode($this->data, JSON_PRETTY_PRINT);
         $this->reset();
         return $result;
