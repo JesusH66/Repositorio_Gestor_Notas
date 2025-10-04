@@ -182,8 +182,8 @@
 
         function syncNote(noteId, service) {
             $.ajax({
-                url: `/notes/${noteId}/sync?service=${service}`,
-                method: 'POST', // Solo hago una petición POST para enviar el servicio en el cuerpo
+                url: `/notes/${noteId}/sync`, // Sin ?service=${service}
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                     'Accept': 'application/json',
@@ -191,11 +191,11 @@
                 },
                 data: JSON.stringify({ service: service }),
                 success: function(data) {
-                    $('#syncContent').text(data.data); // Muestro los datos sincronizadoss
-                    console.log(data.message); // Muestro el mensaje de éxito
+                    let content = data.message + '\n\n' + JSON.stringify(data.data, null, 2);
+                    $('#syncContent').text(content);
                 },
                 error: function(xhr) {
-                    $('#syncContent').text('Error: ' + xhr.responseJSON.error);
+                    $('#syncContent').text('Error: ' + (xhr.responseJSON?.message || 'Error desconocido'));
                 }
             });
 }

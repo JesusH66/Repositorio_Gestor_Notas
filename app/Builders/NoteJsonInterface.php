@@ -1,17 +1,17 @@
 <?php
-
 namespace App\Builders;
 
 interface NoteJsonInterface
 {
     public function reset(): void;
-    public function addTitle(string $title): void;
-    public function addContent(string $content): void;
-    public function addAuthor(int $userId): void;
-    public function addCreatedAt(string $createdAt): void;
-    public function addUpdatedAt(string $updatedAt): void;
-    public function addEdited(bool $wasEdited): void;
-    public function addImportant(bool $important): void;
-    public function addReminder(string $date = null): void;
+    public function produceTitle(string $title): void;
+    public function produceContent(string $content): void;
+    public function produceUserId($userId): void;
+    public function produceCreatedAt(?string $createdAt): void;
+    public function produceUpdatedAt(?string $updatedAt): void;
+    public function produceEdited(bool $wasEdited): void;
+    public function produceImportant(bool $isImportant): void;
+    public function produceReminder(?string $reminder): void;
+    
     public function getResult(): string;
 }

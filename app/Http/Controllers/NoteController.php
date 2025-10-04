@@ -16,7 +16,7 @@ use InvalidArgumentException;
 use App\Adapters\EvernoteAdapter;
 use App\Adapters\GoogleKeepAdapter;
 use App\Facades\SubirNotas;
-
+use App\Builders\NoteBuilder;
 
 class NoteController extends Controller
 {
@@ -171,50 +171,62 @@ class NoteController extends Controller
     
     public function export(Request $request, $id)
     {
-        // Recupero la nota que se necesita
-        $note = DB::table('notes')
-            ->where('id', $id)
-            ->where('user_id', Session::get('user_id'))
-            ->first();
+        try {
+            // Recupero la nota
+            $note = DB::table('notes')
+                ->where('id', $id)
+                ->where('user_id', Session::get('user_id'))
+                ->first();
 
-        if (!$note) {
-            return response()->json(['error' => 'Nota no encontrada'], 404);
-        }
+            if (!$note) {
+                return response()->json(['error' => 'Nota no encontrada'], 404);
+            }
 
-        // Verifico si fue editada
-        $wasEdited = DB::table('note_edits')->where('note_id', $id)->exists();
+            // Verifico si fue editada
+            $wasEdited = DB::table('note_edits')->where('note_id', $id)->exists();
 
-        // Obtengo el estilo de exportación 
-        $style = $request->query('style', $note->export_style ?? 'simple');
+            // Obtengo el estilo de exportación
+            $style = $request->query('style', $note->export_style ?? 'simple');
 
-        // Creo el director y selecciono el builder a utilizar
-        $director = new NoteJsonDirector();
-        switch ($style) {
-            case 'simple':
-                $builder = new NoteJsonSimple();
-                $method = 'buildSimpleJson';
-                break;
-            case 'intermedio':
-                $builder = new NoteJsonNormal();
-                $method = 'buildIntermediateJson';
-                break;
-            case 'avanzado':
-                $builder = new NoteJsonAdvance();
-                $method = 'buildAdvancedJson';
-                break;
-            default:
+            // Obtengo el builder usando el factory
+            $builder = NoteBuilder::getBuilder($style);
+
+            // Preparo los datos de la nota
+            $noteData = [
+                'title' => $note->title ?? '',
+                'content' => $note->content ?? '',
+                'user_id' => $note->user_id,
+                'created_at' => $note->created_at ?? now()->toDateTimeString(),
+                'updated_at' => $note->updated_at ?? null,
+                'important' => $note->important ?? false,
+                'date' => $note->reminder ?? null,
+            ];
+
+            if ($style === 'simple') {
+                $builder->buildSimple($noteData);
+            } elseif ($style === 'intermedio') {
+                $builder->buildIntermediate($noteData);
+            } elseif ($style === 'avanzado') {
+                $builder->buildAdvanced($noteData, $wasEdited);
+            } else {
                 return response()->json(['error' => 'Estilo de exportación no válido.'], 400);
+            }
+
+            // Obtengo el JSON
+            $json = $builder->getResult();
+
+            // Actualizo el metadato export_style
+            DB::table('notes')
+                ->where('id', $id)
+                ->update(['export_style' => $style]);
+
+            // Retorno el JSON
+            return response()->json(['json' => $json]);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error al exportar la nota: ' . $e->getMessage()], 500);
         }
-
-        $director->setBuilder($builder);
-
-        // Genero el JSON
-        $json = $style === 'avanzado'
-            ? $director->$method((array) $note, $wasEdited)
-            : $director->$method((array) $note);
-
-        // Retorno el Json que hemos creado en base al tipo
-        return response()->json(['json' => $json]);
     }
 
     // Función para actualizar el campo style (hace referencia al tipo de exportación Json)

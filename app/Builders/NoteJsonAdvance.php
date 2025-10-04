@@ -1,61 +1,91 @@
 <?php
-
 namespace App\Builders;
+
+use InvalidArgumentException;
+use Illuminate\Support\Carbon;
 
 class NoteJsonAdvance implements NoteJsonInterface
 {
-    protected array $data = [];
+    private array $data = [];
 
-    // Funciones que me retornarán los datos que requiero para hacer la nota avanzada
+    public function __construct()
+    {
+        $this->reset();
+    }
 
     public function reset(): void
     {
         $this->data = [];
     }
 
-    public function addTitle(string $title): void
+    public function produceUserId($userId): void
     {
-        $this->data['Titulo de la nota'] = $title;
+        $this->data['user_id'] = $userId;
     }
 
-    public function addContent(string $content): void
+    public function produceTitle(string $title): void
     {
-        $this->data['Descripcion'] = $content;
+        $this->data['title'] = $title;
     }
 
-    public function addAuthor(int $userId): void
+    public function produceContent(string $content): void
     {
-        $this->data['Autor'] = "User ID: $userId";
+        $this->data['content'] = $content;
     }
 
-    public function addCreatedAt(string $createdAt): void
+    public function produceCreatedAt(?string $createdAt): void
     {
-        $this->data['Fecha de creacion'] = $createdAt;
+        $this->data['created_at'] = $createdAt ?? Carbon::now()->toDateTimeString();
     }
 
-    public function addUpdatedAt(string $updatedAt): void
+    public function produceUpdatedAt(?string $updatedAt): void
     {
-        $this->data['Edicion de nota'] = $updatedAt;
+        $this->data['updated_at'] = $updatedAt;
     }
 
-    public function addEdited(bool $wasEdited): void
+    public function produceEdited(bool $wasEdited): void
     {
-        $this->data['Fue editada?'] = $wasEdited;
+        $this->data['was_edited'] = $wasEdited;
     }
 
-    public function addImportant(bool $important): void
+    public function produceImportant(bool $isImportant): void
     {
-        $this->data['Importante'] = $important;
+        $this->data['is_important'] = $isImportant;
     }
 
-    public function addReminder(string $date = null): void
+    public function produceReminder(?string $reminder): void
     {
-        $this->data['Fecha recordatorio'] = $date;
+        $this->data['reminder'] = $reminder;
+    }
+
+    public function buildAdvanced(array $noteData, bool $wasEdited): void
+    {
+        $requiredKeys = ['title', 'content', 'user_id', 'created_at', 'updated_at', 'important'];
+        foreach ($requiredKeys as $key) {
+            
+        }
+
+        $this->reset();
+        $this->produceTitle($noteData['title']);
+        $this->produceContent($noteData['content']);
+        $this->produceUserId($noteData['user_id']);
+        $this->produceCreatedAt($noteData['created_at']);
+        $this->produceUpdatedAt($noteData['updated_at']);
+        $this->produceEdited($wasEdited);
+        $this->produceImportant($noteData['important']);
+        $this->produceReminder($noteData['date'] ?? null);
     }
 
     public function getResult(): string
     {
-        return json_encode($this->data, JSON_PRETTY_PRINT);
+        $requiredKeys = ['user_id', 'title', 'content'];
+        foreach ($requiredKeys as $key) {
+            if (!isset($this->data[$key]) || empty($this->data[$key])) {
+                throw new InvalidArgumentException("El campo requerido '$key' no está establecido");
+            }
+        }
+        $result = json_encode($this->data, JSON_PRETTY_PRINT);
+        $this->reset();
+        return $result;
     }
-    
 }

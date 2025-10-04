@@ -41,7 +41,7 @@ class SubirNotas extends Facade
                 ->first();
 
             if (!$note) {
-                throw new InvalidArgumentException('Nota no encontrada o no autorizada');
+                throw new InvalidArgumentException('Nota no encontrada.');
             }
 
             // Actualizo el metadato 'service' en la base de datos
